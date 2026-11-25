@@ -1,0 +1,84 @@
+<div class="page-wrapper">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">QBA SAC / Data Maestra / <span>Gestión de Usuarios</span></div>
+      <h1>Administración de Usuarios y Roles (CU-02)</h1>
+      <p>Crea cuentas para vendedores de tienda y almaceneros con permisos diferenciados</p>
+    </div>
+    <button class="ui-btn ui-btn-accent" (click)="abrirModalNuevoUsuario()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+      Crear Usuario / Vendedor
+    </button>
+  </div>
+
+  <div class="alert-banner success" *ngIf="mensajeNotificacion">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    <span>{{ mensajeNotificacion }}</span>
+  </div>
+
+  <div class="ui-card table-container">
+    <div class="table-controls">
+      <div class="search-box"><input type="text" class="ui-input" [(ngModel)]="filtroBusqueda" placeholder="Buscar colaborador o usuario..."></div>
+      <div class="select-box">
+        <select class="ui-select" [(ngModel)]="filtroRol">
+          <option value="TODOS">Todos los roles</option>
+          <option value="Administrador">Administrador</option>
+          <option value="JefeAlmacen">Almacenero</option>
+          <option value="Vendedor">Vendedor</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table class="shadcn-table">
+        <thead>
+          <tr><th>Colaborador</th><th>Usuario</th><th>Rol Asignado</th><th>Sede / Tienda</th><th class="text-center">Estado</th><th class="text-right">Acción</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of usuariosFiltrados">
+            <td>
+              <div class="user-row">
+                <div class="avatar-circle">{{ u.iniciales }}</div>
+                <div><div class="prod-name">{{ u.nombreCompleto }}</div><div class="text-muted">{{ u.correo }}</div></div>
+              </div>
+            </td>
+            <td><code class="code-pill">{{ u.username }}</code></td>
+            <td><span class="ui-badge ui-badge-default">{{ u.rolEtiqueta }}</span></td>
+            <td>
+              <span class="inline-icon">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="2.2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                {{ u.sedeNombre }}
+              </span>
+            </td>
+            <td class="text-center"><span class="ui-badge" [ngClass]="u.estado ? 'ui-badge-success' : 'ui-badge-destructive'"><span class="badge-dot"></span> {{ u.estado ? 'Activo' : 'Inactivo' }}</span></td>
+            <td class="text-right"><button class="ui-btn ui-btn-outline ui-btn-sm" (click)="cambiarEstadoUsuario(u)" [disabled]="u.username === 'admin'">{{ u.estado ? 'Desactivar' : 'Activar' }}</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="dialog-backdrop" *ngIf="mostrarModal">
+    <div class="dialog-panel ui-card">
+      <div class="dialog-header">
+        <div><h3>Nuevo Usuario</h3><p>Asigna rol y sede operativa</p></div>
+        <button class="ui-btn ui-btn-ghost ui-btn-icon" (click)="mostrarModal = false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form (ngSubmit)="crearUsuario()">
+        <div class="dialog-grid">
+          <div class="form-field span-2"><label>Nombre Completo *</label><input type="text" class="ui-input" [(ngModel)]="nuevoUsuarioForm.nombreCompleto" name="nombreCompleto" required></div>
+          <div class="form-field"><label>Usuario *</label><input type="text" class="ui-input" [(ngModel)]="nuevoUsuarioForm.username" name="username" required></div>
+          <div class="form-field"><label>Contraseña *</label><input type="password" class="ui-input" [(ngModel)]="nuevoUsuarioForm.password" name="password" required></div>
+          <div class="form-field"><label>Rol</label><select class="ui-select" [(ngModel)]="nuevoUsuarioForm.rol" name="rol"><option value="Vendedor">Vendedor (Confirma recepciones)</option><option value="JefeAlmacen">Almacenero (Despacha traspasos)</option><option value="Administrador">Administrador</option></select></div>
+          <div class="form-field"><label>Sede</label><select class="ui-select" [(ngModel)]="nuevoUsuarioForm.sedeId" name="sedeId"><option [value]="94">Tienda Full Tecnología</option><option [value]="95">Tienda Dahua Cámaras</option><option [value]="93">Almacén (#93)</option></select></div>
+        </div>
+        <div class="dialog-footer">
+          <button type="button" class="ui-btn ui-btn-outline" (click)="mostrarModal = false">Cancelar</button>
+          <button type="submit" class="ui-btn ui-btn-primary">Crear Cuenta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

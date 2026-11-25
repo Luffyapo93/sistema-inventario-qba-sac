@@ -1,0 +1,143 @@
+.auth-shell {
+  min-height: 100vh;
+  background-color: #09090B;
+  background-image:
+    radial-gradient(circle at top right, rgba(30, 58, 138, 0.35) 0%, transparent 45%),
+    radial-gradient(circle at bottom left, rgba(234, 88, 12, 0.2) 0%, transparent 40%);
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 2rem;
+  border-radius: 12px;
+  background-color: #121215;
+  border: 1px solid #27272A;
+  color: #FAFAFA;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.auth-header h1 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: #FAFAFA;
+  margin: 0.65rem 0 0.25rem 0;
+}
+
+.auth-header p {
+  font-size: 0.84rem;
+  color: #A1A1AA;
+  margin: 0;
+}
+
+.auth-alert {
+  background-color: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  color: #FCA5A5;
+  padding: 0.65rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.field-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #E4E4E7;
+  margin-bottom: 0.3rem;
+}
+
+.auth-card .ui-input {
+  background-color: #18181B;
+  border-color: #27272A;
+  color: #FAFAFA;
+}
+
+.auth-card .ui-input:focus {
+  border-color: #3B82F6;
+}
+
+.w-full {
+  width: 100%;
+  height: 40px;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.separator {
+  position: relative;
+  text-align: center;
+  margin: 1.4rem 0 1rem 0;
+}
+
+.separator::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  border-top: 1px solid #27272A;
+}
+
+.separator span {
+  position: relative;
+  background-color: #121215;
+  padding: 0 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #71717A;
+}
+
+.role-matrix {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.role-tile {
+  background-color: #18181B;
+  border: 1px solid #27272A;
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.role-tile:hover {
+  background-color: #1E293B;
+  border-color: #3B82F6;
+}
+
+.role-tile.highlight {
+  border-left: 3px solid #EA580C;
+}
+
+.role-tile strong {
+  display: block;
+  font-size: 0.78rem;
+  color: #FAFAFA;
+}
+
+.role-tile small {
+  font-size: 0.69rem;
+  color: #A1A1AA;
+}

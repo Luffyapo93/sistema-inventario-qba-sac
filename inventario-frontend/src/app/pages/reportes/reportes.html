@@ -1,0 +1,141 @@
+<div class="page-wrapper">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">QBA SAC / Reportes / <span>Alertas y Órdenes de Compra</span></div>
+      <h1>Alertas de Stock Mínimo y Reposición (CU-19 / CU-22)</h1>
+      <p>Motor preventivo de punto de reorden (Stock &le; Mínimo) y generación automática de Órdenes de Compra</p>
+    </div>
+    <div class="header-actions">
+      <button class="ui-btn ui-btn-success" (click)="exportarCSV()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar Excel (CSV)
+      </button>
+      <button class="ui-btn ui-btn-outline" (click)="cargarAlertasDeStockMinimo()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+        Actualizar Alertas
+      </button>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="ui-card kpi-box alert-border">
+      <div class="kpi-top"><span>Productos en Punto de Reorden</span><span class="ui-badge ui-badge-destructive"><span class="badge-dot"></span> Crítico</span></div>
+      <div class="kpi-value text-orange">{{ alertasFiltradas.length }} SKUs</div>
+      <small class="text-muted">Stock disponible menor o igual al mínimo</small>
+    </div>
+    <div class="ui-card kpi-box">
+      <div class="kpi-top"><span>Órdenes de Compra Emitidas</span><span class="ui-badge ui-badge-default">En curso</span></div>
+      <div class="kpi-value">{{ ordenesEmitidas.length }} OCs</div>
+      <small class="text-muted">Pendientes de recepción en almacén</small>
+    </div>
+    <div class="ui-card kpi-box">
+      <div class="kpi-top"><span>Inversión Sugerida de Reposición</span><span class="ui-badge ui-badge-secondary">Estimado</span></div>
+      <div class="kpi-value text-blue">S/ 4,850.00</div>
+      <small class="text-muted">Cálculo basado en Stock Máximo &minus; Actual</small>
+    </div>
+  </div>
+
+  <div class="alert-banner info" *ngIf="mensajeSistema">{{ mensajeSistema }}</div>
+
+  <div class="ui-card chart-card">
+    <div class="card-head">
+      <div><h3>Índice de Salud de Inventario por Sede</h3><p>Porcentaje de productos con stock saludable frente a productos en alerta</p></div>
+      <span class="ui-badge ui-badge-warning">Regla: Stock &le; 3 uds</span>
+    </div>
+    <div class="bars-grid">
+      <div class="bar-item">
+        <div class="bar-meta"><span>Almacén Corporativo (#93)</span><strong>85% Saludable</strong></div>
+        <div class="ui-progress-track"><div class="ui-progress-fill fill-primary" style="width: 85%"></div></div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-meta"><span>Tienda Full Tecnología</span><strong>72% Saludable</strong></div>
+        <div class="ui-progress-track"><div class="ui-progress-fill fill-warning" style="width: 72%"></div></div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-meta"><span>Tienda Dahua Cámaras</span><strong>65% Saludable</strong></div>
+        <div class="ui-progress-track"><div class="ui-progress-fill fill-danger" style="width: 65%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ui-card table-container">
+    <div class="table-controls">
+      <div><h3>1. Bandeja de Alertas Activas (CU-19)</h3><p class="sub-text">Fórmula sugerida: Cantidad a pedir = Stock Máximo &minus; Stock Disponible</p></div>
+      <div class="select-box">
+        <select class="ui-select" [(ngModel)]="filtroSede">
+          <option value="TODAS">Todas las sedes</option>
+          <option value="Almacén Corporativo">Almacén Corporativo (#93)</option>
+          <option value="Tienda Full Tecnología">Tienda Full Tecnología</option>
+          <option value="Tienda Dahua">Tienda Dahua Cámaras</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table class="shadcn-table">
+        <thead>
+          <tr>
+            <th>Código SKU</th><th>Producto / Proveedor</th><th>Sede</th><th class="text-center">Stock</th>
+            <th class="text-center">Mín / Máx</th><th class="text-center">Sugerido</th><th class="text-right">Inversión Est.</th>
+            <th class="text-center">Estado</th><th class="text-right">Acción Compras</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of alertasFiltradas">
+            <td><code class="code-pill">{{ item.codigoSKU }}</code><span class="ui-badge ui-badge-default ml-1">ABC-{{ item.clasificacionABC }}</span></td>
+            <td><div class="prod-name">{{ item.productoNombre }}</div><div class="text-muted">{{ item.proveedorNombre }}</div></td>
+            <td>{{ item.sedeNombre }}</td>
+            <td class="text-center"><span class="ui-badge" [ngClass]="item.estadoAlerta === 'ATENDIDA' ? 'ui-badge-success' : 'ui-badge-destructive'"><span class="badge-dot"></span> {{ item.stockDisponible }} uds</span></td>
+            <td class="text-center text-muted">{{ item.stockMinimo }} / {{ item.stockMaximo }}</td>
+            <td class="text-center"><input type="number" class="ui-input qty-input" [(ngModel)]="item.cantidadSugerida" min="1" [disabled]="item.estadoAlerta !== 'PENDIENTE'"></td>
+            <td class="text-right font-semibold">S/ {{ (item.cantidadSugerida * item.costoUnitario) | number:'1.2-2' }}</td>
+            <td class="text-center">
+              <span class="ui-badge ui-badge-warning" *ngIf="item.estadoAlerta === 'PENDIENTE'"><span class="badge-dot"></span> Pendiente</span>
+              <span class="ui-badge ui-badge-default" *ngIf="item.estadoAlerta === 'EN_REPOSICION'"><span class="badge-dot"></span> En Reposición</span>
+              <span class="ui-badge ui-badge-success" *ngIf="item.estadoAlerta === 'ATENDIDA'"><span class="badge-dot"></span> Atendida</span>
+            </td>
+            <td class="text-right">
+              <button class="ui-btn ui-btn-accent ui-btn-sm" (click)="generarOrdenCompra(item)" [disabled]="item.estadoAlerta !== 'PENDIENTE'">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                Generar OC
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="ui-card table-container" *ngIf="ordenesEmitidas.length > 0">
+    <div class="table-controls">
+      <div><h3>2. Órdenes de Compra Emitidas (CU-22 &rarr; CU-10)</h3><p class="sub-text">Confirma el ingreso físico de la mercadería para sumar el stock y cerrar la alerta</p></div>
+      <span class="ui-badge ui-badge-default">{{ ordenesEmitidas.length }} órdenes generadas</span>
+    </div>
+
+    <div class="table-scroll">
+      <table class="shadcn-table">
+        <thead>
+          <tr><th>N° Orden</th><th>Fecha</th><th>Proveedor</th><th>Sede Destino</th><th>Producto</th><th class="text-center">Cant.</th><th class="text-right">Total</th><th class="text-center">Estado</th><th class="text-right">Recepción</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let oc of ordenesEmitidas">
+            <td class="font-bold">{{ oc.correlativo }}</td>
+            <td>{{ oc.fecha }}</td>
+            <td>{{ oc.proveedor }}</td>
+            <td>{{ oc.sedeDestino }}</td>
+            <td class="prod-name">{{ oc.productoNombre }}</td>
+            <td class="text-center font-semibold">+{{ oc.cantidadPedida }} uds</td>
+            <td class="text-right font-semibold">S/ {{ oc.totalEstimado | number:'1.2-2' }}</td>
+            <td class="text-center"><span class="ui-badge" [ngClass]="oc.estado === 'EMITIDA' ? 'ui-badge-default' : 'ui-badge-success'"><span class="badge-dot"></span> {{ oc.estado }}</span></td>
+            <td class="text-right">
+              <button class="ui-btn ui-btn-primary ui-btn-sm" (click)="confirmarIngresoMercaderia(oc)" [disabled]="oc.estado === 'RECIBIDA'">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Confirmar Ingreso
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

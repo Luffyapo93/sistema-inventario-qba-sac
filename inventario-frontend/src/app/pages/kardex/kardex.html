@@ -1,0 +1,105 @@
+<div class="page-wrapper">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">QBA SAC / Reportes / <span>Kardex Valorizado</span></div>
+      <h1>Kardex Valorizado y Auditoría (CU-15 / CU-24)</h1>
+      <p>Registro cronológico físico y valorizado de entradas, salidas y traslados por sede</p>
+    </div>
+    <button class="ui-btn ui-btn-success" (click)="exportarKardexCSV()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Exportar Kardex a Excel (CSV)
+    </button>
+  </div>
+
+  <div class="kpi-strip">
+    <div class="ui-card kpi-item">
+      <div class="kpi-top"><span>Total Ingresos Valorizados</span><span class="ui-badge ui-badge-success">Entradas</span></div>
+      <strong class="text-green">S/ {{ totalEntradasValorizado | number:'1.2-2' }}</strong>
+      <small>Compras y recepciones confirmadas</small>
+    </div>
+    <div class="ui-card kpi-item">
+      <div class="kpi-top"><span>Total Salidas Valorizadas</span><span class="ui-badge ui-badge-warning">Salidas</span></div>
+      <strong class="text-orange">S/ {{ totalSalidasValorizado | number:'1.2-2' }}</strong>
+      <small>Ventas POS y despachos</small>
+    </div>
+    <div class="ui-card kpi-item border-blue">
+      <div class="kpi-top"><span>Valorización Actual Inventario</span><span class="ui-badge ui-badge-default">Saldo</span></div>
+      <strong class="text-blue">S/ {{ valorPatrimonialActual | number:'1.2-2' }}</strong>
+      <small>Saldo patrimonial disponible</small>
+    </div>
+  </div>
+
+  <div class="ui-card chart-card">
+    <div class="card-head">
+      <div><h3>Balance de Movimientos Valorizados</h3><p>Relación visual entre capital ingresado y mercadería despachada</p></div>
+      <span class="ui-badge ui-badge-secondary">Auditoría Contable</span>
+    </div>
+    <div class="bars-grid">
+      <div class="bar-item">
+        <div class="bar-meta"><span>Ingresos por Compras</span><strong>S/ {{ totalEntradasValorizado | number:'1.2-2' }}</strong></div>
+        <div class="ui-progress-track"><div class="ui-progress-fill fill-success" style="width: 78%"></div></div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-meta"><span>Salidas por Ventas</span><strong>S/ {{ totalSalidasValorizado | number:'1.2-2' }}</strong></div>
+        <div class="ui-progress-track"><div class="ui-progress-fill fill-warning" style="width: 22%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ui-card table-container">
+    <div class="table-controls">
+      <div class="select-box">
+        <select class="ui-select" [(ngModel)]="filtroSede">
+          <option value="TODAS">Todas las sedes</option>
+          <option value="Almacén Corporativo">Almacén Corporativo (#93)</option>
+          <option value="Tienda Full Tecnología">Tienda Full Tecnología</option>
+          <option value="Tienda Dahua">Tienda Dahua Cámaras</option>
+        </select>
+      </div>
+      <div class="select-box wide">
+        <select class="ui-select" [(ngModel)]="filtroProducto">
+          <option value="TODOS">Todos los productos del catálogo</option>
+          <option value="GQY1JAY">GQY1JAY — SOFTWARE ESET NOD32</option>
+          <option value="6939550000000">6939550000000 — FUENTE DE PODER DAHUA</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table class="kardex-table">
+        <thead>
+          <tr class="group-row">
+            <th colspan="5" class="g-dark">Detalle de Operación</th>
+            <th colspan="3" class="g-green">Entradas</th>
+            <th colspan="3" class="g-orange">Salidas</th>
+            <th colspan="3" class="g-blue">Saldo Final</th>
+          </tr>
+          <tr class="sub-row">
+            <th>Fecha</th><th>Sede</th><th>Producto</th><th>Tipo</th><th>Documento</th>
+            <th class="text-right">Cant.</th><th class="text-right">C.U.</th><th class="text-right">Total</th>
+            <th class="text-right">Cant.</th><th class="text-right">C.U.</th><th class="text-right">Total</th>
+            <th class="text-right">Uds</th><th class="text-right">C.Prom</th><th class="text-right">Total S/</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of registrosFiltrados">
+            <td class="nowrap text-muted">{{ row.fecha }}</td>
+            <td>{{ row.sedeNombre }}</td>
+            <td><div class="prod-name">{{ row.productoSKU }}</div><div class="text-muted">{{ row.productoNombre }}</div></td>
+            <td><span class="ui-badge ui-badge-default">{{ row.tipoOperacion }}</span></td>
+            <td><code class="code-pill">{{ row.documentoReferencia }}</code></td>
+            <td class="cell-in text-right">{{ row.cantidadEntrada || '—' }}</td>
+            <td class="cell-in text-right">{{ row.costoUnitarioEntrada ? ('S/ ' + (row.costoUnitarioEntrada | number:'1.2-2')) : '—' }}</td>
+            <td class="cell-in text-right font-semibold">{{ row.totalEntrada ? ('S/ ' + (row.totalEntrada | number:'1.2-2')) : '—' }}</td>
+            <td class="cell-out text-right">{{ row.cantidadSalida || '—' }}</td>
+            <td class="cell-out text-right">{{ row.costoUnitarioSalida ? ('S/ ' + (row.costoUnitarioSalida | number:'1.2-2')) : '—' }}</td>
+            <td class="cell-out text-right font-semibold">{{ row.totalSalida ? ('S/ ' + (row.totalSalida | number:'1.2-2')) : '—' }}</td>
+            <td class="cell-bal text-right font-bold">{{ row.saldoCantidad }}</td>
+            <td class="cell-bal text-right">S/ {{ row.saldoCostoUnitario | number:'1.2-2' }}</td>
+            <td class="cell-bal text-right font-bold text-blue">S/ {{ row.saldoTotal | number:'1.2-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

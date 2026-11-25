@@ -1,0 +1,83 @@
+<div class="page-wrapper">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">QBA SAC / Data Maestra / <span>Integración My Company</span></div>
+      <h1>Sincronización CSV con “My Company” (CU-09 / CU-29)</h1>
+      <p>Importación masiva de catálogo maestro, compras y ventas emitidas desde el facturador SUNAT</p>
+    </div>
+    <button class="ui-btn ui-btn-outline" (click)="descargarPlantillaCSV()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Descargar Plantilla CSV
+    </button>
+  </div>
+
+  <div class="kpi-strip">
+    <div class="ui-card kpi-item">
+      <div class="kpi-top"><span>Paso 1 • Exportación</span><span class="ui-badge ui-badge-secondary">Origen</span></div>
+      <strong>Sistema “My Company”</strong>
+      <small>Descarga el reporte de ventas, compras o catálogo</small>
+    </div>
+    <div class="ui-card kpi-item">
+      <div class="kpi-top"><span>Paso 2 • Validación</span><span class="ui-badge ui-badge-default">Control</span></div>
+      <strong>Detección de Stock Mínimo</strong>
+      <small>Evalúa automáticamente cada fila antes de impactar</small>
+    </div>
+    <div class="ui-card kpi-item">
+      <div class="kpi-top"><span>Paso 3 • Sincronización</span><span class="ui-badge ui-badge-success">Tiempo Real</span></div>
+      <strong>Actualización Multisede</strong>
+      <small>Impacta existencias y dispara alertas a Compras</small>
+    </div>
+  </div>
+
+  <div class="alert-banner success" *ngIf="mensajeExito">{{ mensajeExito }}</div>
+
+  <div class="integration-grid">
+    <div class="ui-card p-card">
+      <div><h3>1. Parámetros de Carga</h3><p class="text-muted">Selecciona el tipo de movimiento y adjunta el CSV</p></div>
+      <div class="form-field">
+        <label>Tipo de Operación</label>
+        <select class="ui-select" [(ngModel)]="tipoCargaSeleccionada">
+          <option value="VENTAS_MYCOMPANY">Salidas por Ventas POS (My Company)</option>
+          <option value="COMPRAS_MYCOMPANY">Entradas por Compras / Guías</option>
+          <option value="CATALOGO_MAESTRO">Lista de Productos Maestra</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Seleccionar Archivo .CSV</label>
+        <input type="file" accept=".csv" (change)="alSeleccionarArchivo($event)" class="file-box">
+      </div>
+      <button class="ui-btn ui-btn-accent w-full" (click)="ejecutarSincronizacion()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Procesar Lote y Actualizar Stock
+      </button>
+    </div>
+
+    <div class="ui-card table-container">
+      <div class="card-head">
+        <div><h3>2. Vista Previa del Lote ({{ filasPrevisualizacion.length }} filas)</h3><p class="text-muted">Revisa las variaciones de inventario antes de confirmar</p></div>
+        <span class="ui-badge ui-badge-default">Lote Validado</span>
+      </div>
+      <div class="table-scroll">
+        <table class="shadcn-table">
+          <thead>
+            <tr><th>Código</th><th>Producto</th><th>Sede</th><th>Comprobante</th><th class="text-center">Cant.</th><th class="text-center">Validación</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of filasPrevisualizacion">
+              <td><code class="code-pill">{{ row.codigoSKU }}</code></td>
+              <td class="prod-name">{{ row.nombre }}</td>
+              <td>{{ row.sedeDestino }}</td>
+              <td><code class="code-pill">{{ row.documentoRef }}</code></td>
+              <td class="text-center font-bold">{{ row.tipoOperacion === 'VENTA' ? '-' : '+' }}{{ row.cantidad }}</td>
+              <td class="text-center">
+                <span class="ui-badge ui-badge-default" *ngIf="row.estadoValidacion === 'LISTO'">Listo</span>
+                <span class="ui-badge ui-badge-warning" *ngIf="row.estadoValidacion === 'ALERTA_STOCK'"><span class="badge-dot"></span> Alerta Mínimo</span>
+                <span class="ui-badge ui-badge-success" *ngIf="row.estadoValidacion === 'PROCESADO'"><span class="badge-dot"></span> Sincronizado</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

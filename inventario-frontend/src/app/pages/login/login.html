@@ -1,0 +1,52 @@
+<div class="auth-shell">
+  <div class="auth-card ui-card">
+    <div class="auth-header">
+      <span class="ui-badge ui-badge-default">QBA SAC • SISTEMA INTEGRADO</span>
+      <h1>Control de Inventario</h1>
+      <p>Ingresa tus credenciales</p>
+    </div>
+
+    <div class="auth-alert" *ngIf="errorMensaje">{{ errorMensaje }}</div>
+
+    <form (ngSubmit)="iniciarSesion()" class="auth-form">
+      <div class="field-group">
+        <label>Usuario</label>
+        <input type="text" class="ui-input" [(ngModel)]="username" name="username" placeholder="usuario" required>
+      </div>
+      <div class="field-group">
+        <label>Contraseña</label>
+        <input type="password" class="ui-input" [(ngModel)]="password" name="password" placeholder="••••••" required>
+      </div>
+      <button type="submit" class="ui-btn ui-btn-primary w-full">Iniciar Sesión</button>
+    </form>
+
+    <div class="separator"><span>Acceso rápido por rol (Actores 4.3.1)</span></div>
+
+    <div class="role-matrix">
+      <button type="button" (click)="accesoRapido('admin')" class="role-tile">
+        <strong>A1 • Administrador</strong>
+        <small>Usuarios, Catálogo y Traspasos</small>
+      </button>
+      <button type="button" (click)="accesoRapido('almacenero')" class="role-tile">
+        <strong>A2 • Almacenero</strong>
+        <small>Despacho Traspasos y Stock</small>
+      </button>
+      <button type="button" (click)="accesoRapido('vendedor')" class="role-tile">
+        <strong>A4 • Vendedor Full Tec.</strong>
+        <small>Ventas y Confirmar Recepción</small>
+      </button>
+      <button type="button" (click)="accesoRapido('vendedor_dahua')" class="role-tile">
+        <strong>A4 • Vendedor Dahua</strong>
+        <small>Ventas y Confirmar Recepción</small>
+      </button>
+      <button type="button" (click)="accesoRapido('compras')" class="role-tile highlight">
+        <strong>A5 • Resp. Compras</strong>
+        <small>Alertas y Órdenes de Compra</small>
+      </button>
+      <button type="button" (click)="accesoRapido('gerencia')" class="role-tile">
+        <strong>A6 • Gerencia</strong>
+        <small>Kardex Valorizado y Auditoría</small>
+      </button>
+    </div>
+  </div>
+</div>

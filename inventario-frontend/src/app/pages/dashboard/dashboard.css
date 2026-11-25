@@ -1,0 +1,64 @@
+.page-wrapper { display: flex; flex-direction: column; gap: 1.35rem; }
+.breadcrumb { font-size: 0.75rem; margin-bottom: 0.2rem; }
+.page-header { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; }
+.page-header h1 { font-size: 1.65rem; font-weight: 700; letter-spacing: -0.025em; margin: 0; }
+.page-header p { font-size: 0.875rem; margin: 0.15rem 0 0; }
+.header-actions { display: flex; gap: 0.65rem; }
+
+/* Charts Row */
+.charts-row { display: grid; grid-template-columns: 1.65fr 1fr; gap: 1.25rem; }
+@media (max-width: 1024px) { .charts-row { grid-template-columns: 1fr; } }
+
+.chart-box { padding: 1.35rem; display: flex; flex-direction: column; justify-content: space-between; }
+.chart-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.chart-top h3 { font-size: 0.95rem; font-weight: 600; color: #334155; margin: 0 0 0.25rem; }
+.big-stat { font-size: 1.5rem; font-weight: 800; color: #0F172A; }
+.stat-up { font-size: 0.76rem; color: #059669; font-weight: 700; margin-left: 0.35rem; }
+.sub-muted { font-size: 0.75rem; color: #64748B; margin: 0; }
+
+/* Vertical Bars (estilo imagen 3) */
+.vertical-bars { height: 155px; display: flex; align-items: flex-end; justify-content: space-around; gap: 0.75rem; padding-top: 1rem; border-bottom: 1px solid rgba(15,23,42,0.08); }
+.v-col { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 0.45rem; }
+.v-bar { width: 34px; border-radius: 10px 10px 4px 4px; background: rgba(56, 189, 248, 0.45); transition: height 0.35s ease; }
+.v-bar.highlight { background: linear-gradient(180deg, #0EA5E9, #0284C7); box-shadow: 0 6px 16px rgba(14, 165, 233, 0.35); }
+.v-col span { font-size: 0.72rem; color: #64748B; font-weight: 600; }
+.v-val { font-size: 0.7rem !important; color: #0369A1 !important; font-weight: 700 !important; }
+
+/* Donut Chart (estilo imagen 3 y 4) */
+.donut-area { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+.donut-svg { width: 135px; height: 135px; }
+.donut-num { font-size: 18px; font-weight: 800; fill: #0F172A; }
+.donut-lbl { font-size: 7px; font-weight: 700; fill: #64748B; letter-spacing: 0.08em; }
+.donut-legend { width: 100%; display: flex; flex-direction: column; gap: 0.45rem; }
+.leg-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #334155; }
+.leg-row strong { margin-left: auto; color: #0F172A; }
+.l-dot { width: 9px; height: 9px; border-radius: 50%; }
+.l-dot.cyan { background: #0EA5E9; }
+.l-dot.green { background: #10B981; }
+.l-dot.amber { background: #F59E0B; }
+
+/* KPI Grid */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; }
+.kpi-box { padding: 1.25rem; }
+.kpi-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+.kpi-ico { width: 32px; height: 32px; border-radius: 10px; background: rgba(15, 23, 42, 0.06); display: grid; place-items: center; font-size: 0.95rem; }
+.kpi-value { font-size: 1.85rem; font-weight: 800; letter-spacing: -0.03em; color: #0F172A; line-height: 1.1; }
+.kpi-name { font-size: 0.85rem; font-weight: 600; color: #1E293B; margin: 0.3rem 0 0.15rem; }
+.text-orange { color: #EA580C; }
+
+/* Table */
+.table-shell { overflow: hidden; }
+.table-toolbar { padding: 1.15rem 1.35rem; border-bottom: 1px solid rgba(15,23,42,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.table-toolbar h3 { font-size: 1.02rem; font-weight: 700; margin: 0 0 0.15rem; }
+.search-wrap { width: 290px; }
+.table-scroll { overflow-x: auto; }
+.shadcn-table { width: 100%; border-collapse: collapse; text-align: left; }
+.shadcn-table th { height: 42px; padding: 0 1rem; font-size: 0.76rem; font-weight: 600; color: #475569; background: rgba(255,255,255,0.45); border-bottom: 1px solid rgba(15,23,42,0.08); }
+.shadcn-table td { padding: 0.85rem 1rem; border-bottom: 1px solid rgba(15,23,42,0.06); font-size: 0.83rem; }
+.shadcn-table tbody tr:hover { background: rgba(255, 255, 255, 0.55); }
+.sku-code { font-family: monospace; background: rgba(15,23,42,0.07); padding: 0.2rem 0.45rem; border-radius: 6px; font-weight: 600; }
+.prod-title { font-weight: 600; color: #0F172A; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; color: #0369A1; }

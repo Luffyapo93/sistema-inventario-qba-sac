@@ -1,0 +1,105 @@
+<div class="page-wrapper">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">QBA SAC / Data Maestra / <span>Lista de Productos</span></div>
+      <h1>Lista de Productos e Inventario Maestro</h1>
+      <p>Catálogo oficial con exportación compatible con Excel y alertas de stock mínimo</p>
+    </div>
+    <div class="header-actions">
+      <button class="ui-btn ui-btn-success" (click)="exportarListaProductosExcel()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar Excel (Lista)
+      </button>
+      <button class="ui-btn ui-btn-accent" (click)="abrirModalCrear()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo Producto
+      </button>
+    </div>
+  </div>
+
+  <div class="tabs-bar">
+    <div class="ui-tabs-list">
+      <button type="button" class="ui-tab-trigger" [class.active]="filtroAlmacen === 'TODOS' && !filtroSoloCriticos" (click)="filtroAlmacen = 'TODOS'; filtroSoloCriticos = false">Todos ({{ productos.length }})</button>
+      <button type="button" class="ui-tab-trigger" [class.active]="filtroAlmacen === 'Full Tecnología'" (click)="filtroAlmacen = 'Full Tecnología'; filtroSoloCriticos = false">Full Tecnología</button>
+      <button type="button" class="ui-tab-trigger" [class.active]="filtroAlmacen === 'Dahua Cámaras'" (click)="filtroAlmacen = 'Dahua Cámaras'; filtroSoloCriticos = false">Dahua Cámaras</button>
+      <button type="button" class="ui-tab-trigger" [class.active]="filtroAlmacen === 'Almacén Central'" (click)="filtroAlmacen = 'Almacén Central'; filtroSoloCriticos = false">Almacén #93</button>
+      <button type="button" class="ui-tab-trigger" [class.active]="filtroSoloCriticos" (click)="filtroSoloCriticos = !filtroSoloCriticos">Stock Crítico ({{ totalStockCritico }})</button>
+    </div>
+    <div class="search-box"><input type="text" class="ui-input" [(ngModel)]="filtroTexto" placeholder="Buscar ID, CÓDIGO o Producto..."></div>
+  </div>
+
+  <div class="alert-banner success" *ngIf="mensajeNotificacion">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    <span>{{ mensajeNotificacion }}</span>
+  </div>
+
+  <div class="ui-card table-container">
+    <div class="sheet-banner"><span>Lista de Productos</span><span class="ui-badge ui-badge-secondary">{{ productosFiltrados.length }} registros</span></div>
+    <div class="table-scroll">
+      <table class="shadcn-table">
+        <thead>
+          <tr>
+            <th class="text-center">ID</th><th class="text-center">CÓDIGO</th><th class="text-center">ID Almacén</th>
+            <th>Producto/Servicio</th><th class="text-center">Unidad</th><th class="text-right">Costo</th>
+            <th class="text-right">Precio Venta</th><th class="text-center">Stock</th><th class="text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let prod of productosFiltrados" [class.row-alert]="prod.stockActual <= prod.stockMinimo">
+            <td class="text-center mono">{{ prod.id }}</td>
+            <td class="text-center"><code class="code-pill">{{ prod.codigoSKU }}</code></td>
+            <td class="text-center">{{ prod.idAlmacen }}</td>
+            <td><div class="prod-name">{{ prod.nombre }}</div><span class="ui-badge ui-badge-default">{{ prod.areaNombre }}</span></td>
+            <td class="text-center text-muted">{{ prod.unidad }}</td>
+            <td class="text-right">S/ {{ prod.precioCosto | number:'1.2-2' }}</td>
+            <td class="text-right price-sale">S/ {{ prod.precioVenta | number:'1.2-2' }}</td>
+            <td class="text-center">
+              <span class="ui-badge" [ngClass]="prod.stockActual === 0 ? 'ui-badge-destructive' : (prod.stockActual <= prod.stockMinimo ? 'ui-badge-warning' : 'ui-badge-success')">
+                <span class="badge-dot"></span> {{ prod.stockActual }}
+              </span>
+            </td>
+            <td class="text-right">
+              <div class="actions-cell">
+                <button class="ui-btn ui-btn-outline ui-btn-sm" (click)="abrirModalEditar(prod)" title="Editar">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                  Editar
+                </button>
+                <button class="ui-btn ui-btn-destructive ui-btn-sm ui-btn-icon" (click)="eliminarProducto(prod)" title="Eliminar">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="dialog-backdrop" *ngIf="mostrarModal">
+    <div class="dialog-panel ui-card">
+      <div class="dialog-header">
+        <div><h3>{{ modoEdicion ? 'Editar Producto' : 'Nuevo Producto' }}</h3><p>Formato oficial Lista de Productos QBA SAC</p></div>
+        <button class="ui-btn ui-btn-ghost ui-btn-icon" (click)="cerrarModal()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form (ngSubmit)="guardarProducto()">
+        <div class="dialog-grid">
+          <div class="form-field"><label>ID</label><input type="number" class="ui-input" [(ngModel)]="productoForm.id" name="id" [readonly]="modoEdicion"></div>
+          <div class="form-field"><label>CÓDIGO *</label><input type="text" class="ui-input" [(ngModel)]="productoForm.codigoSKU" name="codigoSKU" required></div>
+          <div class="form-field"><label>ID Almacén *</label><input type="number" class="ui-input" [(ngModel)]="productoForm.idAlmacen" name="idAlmacen" required></div>
+          <div class="form-field"><label>Área</label><select class="ui-select" [(ngModel)]="productoForm.areaNombre" name="areaNombre"><option value="Full Tecnología">Full Tecnología</option><option value="Dahua Cámaras">Dahua Cámaras</option><option value="Almacén Central">Almacén Central</option></select></div>
+          <div class="form-field span-2"><label>Producto/Servicio *</label><input type="text" class="ui-input" [(ngModel)]="productoForm.nombre" name="nombre" required></div>
+          <div class="form-field"><label>Unidad</label><select class="ui-select" [(ngModel)]="productoForm.unidad" name="unidad"><option value="UNIDADES">UNIDADES</option><option value="CAJAS">CAJAS</option></select></div>
+          <div class="form-field"><label>Stock Actual *</label><input type="number" class="ui-input" [(ngModel)]="productoForm.stockActual" name="stockActual" min="0" required></div>
+          <div class="form-field"><label>Costo (S/) *</label><input type="number" class="ui-input" [(ngModel)]="productoForm.precioCosto" name="precioCosto" step="0.01" required></div>
+          <div class="form-field"><label>Precio Venta (S/) *</label><input type="number" class="ui-input" [(ngModel)]="productoForm.precioVenta" name="precioVenta" step="0.01" required></div>
+        </div>
+        <div class="dialog-footer">
+          <button type="button" class="ui-btn ui-btn-outline" (click)="cerrarModal()">Cancelar</button>
+          <button type="submit" class="ui-btn ui-btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

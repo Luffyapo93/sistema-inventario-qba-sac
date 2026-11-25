@@ -1,0 +1,126 @@
+<div class="page-wrapper">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">QBA SAC / Operación / <span>Traspasos y Recepción</span></div>
+      <h1>{{ puedeDespacharTraspasos ? 'Despacho y Control de Traspasos (CU-12)' : 'Recepción de Mercadería en Tienda (CU-12)' }}</h1>
+      <p>{{ puedeDespacharTraspasos ? 'Solo Administrador y Almacenero pueden despachar productos entre sedes' : 'Verifica los productos enviados a tu tienda y confirma su llegada física' }}</p>
+    </div>
+    <span class="ui-badge ui-badge-default">{{ authService.usuarioActual()?.rolEtiqueta }}</span>
+  </div>
+
+  <div class="kpi-strip">
+    <div class="ui-card kpi-item">
+      <div class="kpi-top"><span>En Tránsito (Por Confirmar)</span><span class="ui-badge ui-badge-warning">Pendientes</span></div>
+      <strong class="text-orange">{{ trasladosPorConfirmar.length }} guías</strong>
+      <small>Esperando confirmación en tienda destino</small>
+    </div>
+    <div class="ui-card kpi-item">
+      <div class="kpi-top"><span>Recepciones Confirmadas</span><span class="ui-badge ui-badge-success">Completados</span></div>
+      <strong class="text-green">{{ historialCompletados.length }} guías</strong>
+      <small>Inventarios sincronizados conforme</small>
+    </div>
+    <div class="ui-card kpi-item">
+      <div class="kpi-top"><span>Sede Operativa Activa</span><span class="ui-badge ui-badge-default">Local</span></div>
+      <strong class="text-blue">{{ authService.usuarioActual()?.sedeNombre }}</strong>
+      <small>Perfil conectado al flujo logístico</small>
+    </div>
+  </div>
+
+  <div class="alert-banner success" *ngIf="mensajeSistema">{{ mensajeSistema }}</div>
+
+  <div class="split-grid" [class.single-col]="!puedeDespacharTraspasos">
+    <div class="ui-card" *ngIf="puedeDespacharTraspasos">
+      <div class="panel-head">
+        <div>
+          <h3>Fase 1: Nuevo Despacho</h3>
+          <p>Exclusivo Administrador / Almacenero</p>
+        </div>
+      </div>
+      <form (ngSubmit)="despacharTraspaso()" class="panel-body">
+        <div class="form-field">
+          <label>Producto a Trasladar *</label>
+          <select class="ui-select" [(ngModel)]="nuevoEnvio.productoId" name="productoId">
+            <option *ngFor="let p of productosDisponibles" [value]="p.id">[{{ p.codigoSKU }}] {{ p.nombre }} (Disp: {{ p.stockActual }})</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Tienda Destino *</label>
+          <select class="ui-select" [(ngModel)]="nuevoEnvio.sedeDestinoId" name="sedeDestinoId">
+            <option [value]="94">Tienda Full Tecnología</option>
+            <option [value]="95">Tienda Dahua Cámaras</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Cantidad *</label>
+          <input type="number" class="ui-input" [(ngModel)]="nuevoEnvio.cantidad" name="cantidad" min="1" required>
+        </div>
+        <div class="form-field">
+          <label>Nota / Guía</label>
+          <input type="text" class="ui-input" [(ngModel)]="nuevoEnvio.observacionEnvio" name="observacionEnvio" placeholder="Ej: Reposición de vitrina...">
+        </div>
+        <button type="submit" class="ui-btn ui-btn-accent w-full">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          Despachar a Tienda
+        </button>
+      </form>
+    </div>
+
+    <div class="right-stack">
+      <div class="ui-card section-card">
+        <div class="section-head">
+          <div>
+            <h3>Fase 2: Productos Pendientes de Confirmar Llegada</h3>
+            <p>Verifica físicamente el producto recibido y pulsa confirmar</p>
+          </div>
+          <span class="ui-badge ui-badge-warning">{{ trasladosPorConfirmar.length }} pendientes</span>
+        </div>
+
+        <div class="shipment-list" *ngIf="trasladosPorConfirmar.length > 0">
+          <div class="shipment-item" *ngFor="let t of trasladosPorConfirmar">
+            <div>
+              <div class="shipment-meta">
+                <code class="code-pill">#{{ t.id }}</code>
+                <span>{{ t.sedeOrigen?.nombre }} &rarr; <strong>{{ t.sedeDestino?.nombre }}</strong></span>
+                <span class="ui-badge ui-badge-warning"><span class="badge-dot"></span> En Tránsito</span>
+              </div>
+              <h4>{{ t.producto?.nombre }}</h4>
+              <small class="text-muted">Código: <strong>{{ t.producto?.codigoSKU }}</strong> • Cantidad: <strong class="text-orange">{{ t.cantidad }} uds</strong> • {{ t.fechaEnvio }}</small>
+            </div>
+            <button class="ui-btn ui-btn-success" (click)="confirmarRecepcion(t)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Confirmar llegada
+            </button>
+          </div>
+        </div>
+
+        <div class="empty-box" *ngIf="trasladosPorConfirmar.length === 0">No hay productos pendientes de confirmación en esta tienda.</div>
+      </div>
+
+      <div class="ui-card section-card" *ngIf="historialCompletados.length > 0">
+        <div class="section-head">
+          <div>
+            <h3>Historial de Recepciones Confirmadas</h3>
+            <p>Entregas verificadas por los vendedores en destino</p>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="shadcn-table">
+            <thead>
+              <tr><th>Guía</th><th>Producto</th><th>Destino</th><th class="text-center">Cant.</th><th>Confirmado por</th><th class="text-center">Estado</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let h of historialCompletados">
+                <td class="font-bold">#{{ h.id }}</td>
+                <td><div class="prod-name">{{ h.producto?.nombre }}</div><div class="text-muted">{{ h.producto?.codigoSKU }}</div></td>
+                <td>{{ h.sedeDestino?.nombre }}</td>
+                <td class="text-center font-bold">{{ h.cantidad }} uds</td>
+                <td><div>{{ h.observacionRecepcion }}</div><div class="text-muted">{{ h.fechaConfirmacion }}</div></td>
+                <td class="text-center"><span class="ui-badge ui-badge-success"><span class="badge-dot"></span> Recibido</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

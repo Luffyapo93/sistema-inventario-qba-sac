@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": []
+  },
+  "include": [
+    "src/**/*.ts"
+, "src/app/services/inventario.services"  ],
+  "exclude": [
+    "src/**/*.spec.ts"
+  ]
+}

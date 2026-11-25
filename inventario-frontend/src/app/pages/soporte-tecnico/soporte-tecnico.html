@@ -1,0 +1,75 @@
+<div class="page-wrapper">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">QBA SAC / Operación / <span>Soporte Tecnológico</span></div>
+      <h1>Módulo de Soporte Tecnológico</h1>
+      <p>Gestión de servicios técnicos y reparaciones (sin descuento de stock físico)</p>
+    </div>
+    <span class="ui-badge ui-badge-default">Área de Servicios</span>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="ui-card kpi-box">
+      <div class="kpi-top"><span>Por Reparar</span><span class="ui-badge ui-badge-warning">En cola</span></div>
+      <div class="kpi-value text-orange">{{ totalPorReparar }} equipos</div>
+      <small class="text-muted">Pendientes de diagnóstico</small>
+    </div>
+    <div class="ui-card kpi-box">
+      <div class="kpi-top"><span>En Reparación</span><span class="ui-badge ui-badge-default">En mesa</span></div>
+      <div class="kpi-value text-blue">{{ totalReparando }} equipos</div>
+      <small class="text-muted">En proceso técnico activo</small>
+    </div>
+    <div class="ui-card kpi-box">
+      <div class="kpi-top"><span>Reparados</span><span class="ui-badge ui-badge-success">Listos</span></div>
+      <div class="kpi-value text-green">{{ totalReparado }} equipos</div>
+      <small class="text-muted">Listos para entrega al cliente</small>
+    </div>
+    <div class="ui-card kpi-box">
+      <div class="kpi-top"><span>Ingresos Proyectados</span><span class="ui-badge ui-badge-secondary">Servicios</span></div>
+      <div class="kpi-value">S/ {{ ingresosServicios | number:'1.2-2' }}</div>
+      <small class="text-muted">Total acumulado en órdenes</small>
+    </div>
+  </div>
+
+  <div class="support-grid">
+    <div class="ui-card">
+      <div class="card-head"><h3>Nueva Orden de Servicio</h3><p>Ingresa los datos del equipo recibido</p></div>
+      <form (ngSubmit)="registrarOrden()" class="card-body">
+        <div class="form-field"><label>Cliente *</label><input type="text" class="ui-input" [(ngModel)]="nuevaOrden.clienteNombre" name="clienteNombre" placeholder="Nombre del cliente" required></div>
+        <div class="form-field"><label>Teléfono</label><input type="text" class="ui-input" [(ngModel)]="nuevaOrden.clienteTelefono" name="clienteTelefono" placeholder="999888777"></div>
+        <div class="form-field"><label>Equipo / Dispositivo *</label><input type="text" class="ui-input" [(ngModel)]="nuevaOrden.equipoDispositivo" name="equipoDispositivo" placeholder="Ej: Cámara IP / Laptop" required></div>
+        <div class="form-field"><label>Problema Reportado</label><input type="text" class="ui-input" [(ngModel)]="nuevaOrden.fallaReportada" name="fallaReportada" placeholder="Descripción de falla"></div>
+        <div class="form-field"><label>Monto Cobrado (S/) *</label><input type="number" class="ui-input" [(ngModel)]="nuevaOrden.montoServicio" name="montoServicio" min="0" step="0.5" required></div>
+        <button type="submit" class="ui-btn ui-btn-primary w-full">Registrar Orden en Taller</button>
+      </form>
+    </div>
+
+    <div class="ui-card table-container">
+      <div class="card-head"><h3>Órdenes Registradas en Taller ({{ ordenes.length }})</h3><p>Selecciona el estado operativo mediante etiquetas visuales</p></div>
+      <div class="table-scroll">
+        <table class="shadcn-table">
+          <thead>
+            <tr><th>N°</th><th>Cliente</th><th>Equipo</th><th>Problema</th><th class="text-right">Monto</th><th class="text-center">Estado</th><th class="text-right">Cambiar Estado</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let o of ordenes">
+              <td class="font-bold">#{{ o.id }}</td>
+              <td><div class="prod-name">{{ o.clienteNombre }}</div><div class="text-muted">{{ o.clienteTelefono }}</div></td>
+              <td>{{ o.equipoDispositivo }}</td>
+              <td class="text-muted">{{ o.fallaReportada }}</td>
+              <td class="text-right font-semibold">S/ {{ o.montoServicio | number:'1.2-2' }}</td>
+              <td class="text-center"><span class="ui-badge" [ngClass]="o.estado === 'Por reparar' ? 'ui-badge-warning' : (o.estado === 'Reparando' ? 'ui-badge-default' : 'ui-badge-success')"><span class="badge-dot"></span> {{ o.estado }}</span></td>
+              <td class="text-right">
+                <select class="ui-select state-select" [ngModel]="o.estado" (ngModelChange)="cambiarEstado(o, $event)">
+                  <option value="Por reparar">Por reparar</option>
+                  <option value="Reparando">Reparando</option>
+                  <option value="Reparado">Reparado</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

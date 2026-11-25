@@ -1,0 +1,111 @@
+<div class="page-wrapper">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">QBA SAC / Operación / <span>Tienda Full Tecnología</span></div>
+      <h1>Tienda Full Tecnología — Punto de Venta (CU-11)</h1>
+      <p>Control de existencias en vitrina y registro de salidas en tiempo real</p>
+    </div>
+    <span class="ui-badge ui-badge-default">Sede #94 • Punto de Venta</span>
+  </div>
+
+  <!-- KPI Cards estilo shadcn/ui -->
+  <div class="kpi-grid">
+    <div class="ui-card kpi-box">
+      <div class="kpi-top"><span>Productos en Vitrina</span><span class="ui-badge ui-badge-default">Activos</span></div>
+      <div class="kpi-value">{{ items.length }} SKUs</div>
+      <small class="text-muted">Catálogo disponible en tienda</small>
+    </div>
+    <div class="ui-card kpi-box">
+      <div class="kpi-top"><span>Unidades Físicas</span><span class="ui-badge ui-badge-success">Stock</span></div>
+      <div class="kpi-value">{{ totalUnidades }} uds</div>
+      <small class="text-muted">Suma verificada en estantes</small>
+    </div>
+    <div class="ui-card kpi-box alert-border">
+      <div class="kpi-top"><span>Alertas de Reposición</span><span class="ui-badge ui-badge-warning">Stock ≤ 3</span></div>
+      <div class="kpi-value text-orange">{{ totalCriticos }} críticos</div>
+      <small class="text-muted">Disparan alerta a Compras</small>
+    </div>
+  </div>
+
+  <div class="alert-banner warning" *ngIf="mensajeAlerta">{{ mensajeAlerta }}</div>
+
+  <!-- Gráfico de Nivel de Stock por Producto -->
+  <div class="ui-card chart-card">
+    <div class="card-head">
+      <div>
+        <h3>Nivel de Existencias en Vitrina</h3>
+        <p>Comparativa visual frente al umbral mínimo de seguridad (3 unidades)</p>
+      </div>
+      <span class="ui-badge ui-badge-secondary">Tiempo Real</span>
+    </div>
+    <div class="bars-grid">
+      <div class="bar-item" *ngFor="let item of items">
+        <div class="bar-meta">
+          <span>{{ item.producto?.nombre }}</span>
+          <strong>{{ item.cantidadActual }} uds</strong>
+        </div>
+        <div class="ui-progress-track">
+          <div
+            class="ui-progress-fill"
+            [ngClass]="item.cantidadActual <= item.stockMinimoSede ? 'fill-warning' : 'fill-success'"
+            [style.width.%]="item.cantidadActual > 10 ? 100 : item.cantidadActual * 10">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de Productos -->
+  <div class="ui-card table-container">
+    <div class="table-controls">
+      <div>
+        <h3>Inventario Operativo — Tienda Full Tecnología</h3>
+        <p class="sub-text">Registra cada salida de venta para descontar stock y evaluar alertas</p>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table class="shadcn-table">
+        <thead>
+          <tr>
+            <th>Código SKU</th>
+            <th>Producto</th>
+            <th>Ubicación</th>
+            <th class="text-right">Precio Venta</th>
+            <th class="text-center">Stock Actual</th>
+            <th class="text-center">Estado</th>
+            <th class="text-right">Operación POS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of items">
+            <td><code class="code-pill">{{ item.producto?.codigoSKU }}</code></td>
+            <td>
+              <div class="prod-name">{{ item.producto?.nombre }}</div>
+              <div class="text-muted">{{ item.producto?.areaNombre }}</div>
+            </td>
+            <td class="text-muted">{{ item.ubicacionFisica }}</td>
+            <td class="text-right font-semibold">S/ {{ item.producto?.precioVenta | number:'1.2-2' }}</td>
+            <td class="text-center font-bold">{{ item.cantidadActual }} uds</td>
+            <td class="text-center">
+              <span class="ui-badge ui-badge-warning" *ngIf="item.cantidadActual <= item.stockMinimoSede">
+                <span class="badge-dot"></span> Crítico
+              </span>
+              <span class="ui-badge ui-badge-success" *ngIf="item.cantidadActual > item.stockMinimoSede">
+                <span class="badge-dot"></span> Disponible
+              </span>
+            </td>
+            <td class="text-right">
+              <button
+                class="ui-btn ui-btn-primary ui-btn-sm"
+                (click)="registrarSalida(item)"
+                [disabled]="item.cantidadActual <= 0">
+                Registrar Venta (-1)
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
